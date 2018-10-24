@@ -17,12 +17,14 @@ The game state can be implemented with the `state` design pattern. A player can 
 
 
 Let's take a look at how to design a `knight`:
-```
+```js
 class Knight {
-  constructor(x, y) {
+  constructor(x, y, color) {
     // Initialize with the initial position.
     this.x = x
     this.y = y
+    this.color = color
+    this.direction = color === 'white' ? 1 : -1
   }
   static moves() {
     // The possible moves that it can make, excluding invalid moves.
@@ -37,10 +39,16 @@ class Knight {
       {x: -1, y: -2},
     ]
   }
-  move (newX,  newY) {
+  isValidMove(newX, newY) {
+    const [head, tail] = [Math.abs(newX), Math.abs(newY)]
+    if (!(head === 1 && tail === 2)) {
+      throw new Error('invalid move')
+    }
+    this.x += newX
+    this.y += newY
+    return { x: this.x, y: this.y }
   }
 }
-
 ```
 
 ## Board
@@ -48,3 +56,18 @@ class Knight {
 We need to ensure that the pieces can only move:
 - within the boundary of the board
 - not overlapping with other pieces
+
+```js
+class Board {
+  constructor() {
+    this.board = []
+    this.pieces = []
+  }
+  setup () {
+  
+  }
+  canMove(piece) {
+     
+  }
+}
+```
