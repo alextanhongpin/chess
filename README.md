@@ -125,6 +125,11 @@ func main() {
 	var canMove uint64 = 1<<(9+8) | 1<<(9*2-1+8)
 	fmt.Println("canMove")
 	printBoard(canMove)
+	
+	var canMove2 uint64 = 1 << (63-translateMove(6,2)) | 1 << (63-translateMove(6,3))
+	fmt.Println("canMove2")
+	printBoard(canMove2)
+	
 
 	var canEat uint64 = 1<<(9+8-1) | 1<<(9+8+1)
 	fmt.Println("canEat")
@@ -151,8 +156,8 @@ func printBoard(board uint64) {
 	fmt.Println()
 }
 
-func translateMove(x, y int) int {
-	return x + (7-y)*8
+func translateMove(x, y int) uint {
+	return uint(x + (7-y)*8)
 }
 ```
 
