@@ -74,7 +74,7 @@ class Board {
 
 ## Bitboards
 
-```
+```go
 package main
 
 import (
@@ -122,11 +122,37 @@ func main() {
 	fmt.Printf("whitePieces : %064b\n", whitePieces)
 
 	// Example of pawn move at g2, printed into a board.
-	var pawnMove uint64 = 1<<(9+8) | 1<<(9*2-1+8) | 1<<(9+8-1) | 1<<(9+8+1)
-	fmt.Printf("pawnMove : %064b\n", pawnMove)
-	for i := 0; i < 8; i++ {
-		fmt.Println(fmt.Sprintf("%064b", pawnMove)[i*8 : (i+1)*8])
+	var canMove uint64 = 1<<(9+8) | 1<<(9*2-1+8)
+	fmt.Println("canMove")
+	printBoard(canMove)
+
+	var canEat uint64 = 1<<(9+8-1) | 1<<(9+8+1)
+	fmt.Println("canEat")
+	printBoard(canEat)
+
+	newWhitePieces := whitePieces | 1<<(9+8-1)
+
+	fmt.Println("newWhitePieces")
+	pawnMove := ^blackPieces & ((newWhitePieces & canEat) | canMove)
+	printBoard(pawnMove)
+
+	for i := 0; i < 64; i++ {
+		fmt.Printf("(%d, %d): %d", i%8, 7-i/8, translateMove(i%8, 7-i/8))
+		if i != 0 && i%8 == 7 {
+			fmt.Println()
+		}
 	}
+}
+
+func printBoard(board uint64) {
+	for i := 0; i < 8; i++ {
+		fmt.Println(fmt.Sprintf("%064b", board)[i*8 : (i+1)*8])
+	}
+	fmt.Println()
+}
+
+func translateMove(x, y int) int {
+	return x + (7-y)*8
 }
 ```
 
