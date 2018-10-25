@@ -71,3 +71,64 @@ class Board {
   }
 }
 ```
+
+## Bitboards
+
+```
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+
+	var blackRooks uint64 = 1<<7 | 1<<0
+	var blackKnights uint64 = 1<<6 | 1<<1
+	var blackBishops uint64 = 1<<5 | 1<<2
+	var blackKing uint64 = 1 << 3
+	var blackQueen uint64 = 1 << 4
+
+	var whiteRooks uint64 = 1<<(63-7) | 1<<(63)
+	var whiteKnights uint64 = 1<<(63-6) | 1<<(63-1)
+	var whiteBishops uint64 = 1<<(63-5) | 1<<(63-2)
+	var whiteKing uint64 = 1 << (63 - 4)
+	var whiteQueen uint64 = 1 << (63 - 3)
+
+	var blackPawns uint64 = 0
+	var whitePawns uint64 = 0
+	for i := 0; i < 8; i++ {
+		blackPawns |= 1 << uint(8+i)
+		whitePawns |= 1 << uint(63-15+i)
+	}
+
+	var whitePieces = whiteKnights | whiteRooks | whiteBishops | whiteKing | whiteQueen | whitePawns
+	var blackPieces = blackKnights | blackRooks | blackBishops | blackKing | blackQueen | blackPawns
+
+	fmt.Printf("blackRooks  : %064b\n", blackRooks)
+	fmt.Printf("blackKnights: %064b\n", blackKnights)
+	fmt.Printf("blackBishops: %064b\n", blackBishops)
+	fmt.Printf("blackKing   : %064b\n", blackKing)
+	fmt.Printf("blackQueen  : %064b\n", blackQueen)
+	fmt.Printf("blackPawns  : %064b\n", blackPawns)
+	fmt.Printf("blackPieces : %064b\n", blackPieces)
+
+	fmt.Printf("whiteRooks  : %064b\n", whiteRooks)
+	fmt.Printf("whiteKnights: %064b\n", whiteKnights)
+	fmt.Printf("whiteBishops: %064b\n", whiteBishops)
+	fmt.Printf("whiteKing   : %064b\n", whiteKing)
+	fmt.Printf("whiteQueen  : %064b\n", whiteQueen)
+	fmt.Printf("whitePawns  : %064b\n", whitePawns)
+	fmt.Printf("whitePieces : %064b\n", whitePieces)
+
+	// Example of pawn move at g2, printed into a board.
+	var pawnMove uint64 = 1<<(9+8) | 1<<(9*2-1+8) | 1<<(9+8-1) | 1<<(9+8+1)
+	fmt.Printf("pawnMove : %064b\n", pawnMove)
+	for i := 0; i < 8; i++ {
+		fmt.Println(fmt.Sprintf("%064b", pawnMove)[i*8 : (i+1)*8])
+	}
+}
+```
+
+## References
+- chess bitboard https://chess.stackexchange.com/questions/2831/how-to-represent-chess-state-with-a-bitboard
