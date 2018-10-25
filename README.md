@@ -81,8 +81,12 @@ import (
 	"fmt"
 )
 
-func main() {
+type Point struct {
+	X int
+	Y int
+}
 
+func main() {
 	var blackRooks uint64 = 1<<7 | 1<<0
 	var blackKnights uint64 = 1<<6 | 1<<1
 	var blackBishops uint64 = 1<<5 | 1<<2
@@ -125,11 +129,10 @@ func main() {
 	var canMove uint64 = 1<<(9+8) | 1<<(9*2-1+8)
 	fmt.Println("canMove")
 	printBoard(canMove)
-	
-	var canMove2 uint64 = 1 << (63-translateMove(6,2)) | 1 << (63-translateMove(6,3))
+
+	var canMove2 uint64 = 1<<(63-translateMove(6, 2)) | 1<<(63-translateMove(6, 3))
 	fmt.Println("canMove2")
 	printBoard(canMove2)
-	
 
 	var canEat uint64 = 1<<(9+8-1) | 1<<(9+8+1)
 	fmt.Println("canEat")
@@ -138,15 +141,121 @@ func main() {
 	newWhitePieces := whitePieces | 1<<(9+8-1)
 
 	fmt.Println("newWhitePieces")
+	printBoard(newWhitePieces)
+
+	fmt.Println("possible moves")
+	// NOT black pieces AND (can eat white pieces OR can move)
 	pawnMove := ^blackPieces & ((newWhitePieces & canEat) | canMove)
 	printBoard(pawnMove)
 
 	for i := 0; i < 64; i++ {
-		fmt.Printf("(%d, %d): %d", i%8, 7-i/8, translateMove(i%8, 7-i/8))
+		fmt.Printf("(%d,%d): %02d ", i%8, 7-i/8, translateMove(i%8, 7-i/8))
 		if i != 0 && i%8 == 7 {
 			fmt.Println()
 		}
 	}
+
+	// Clear a bit
+	fmt.Println("cleared")
+	printBoard(whitePieces &^ (1 << (63 - translateMove(7, 7))))
+
+	fmt.Println("knight moves")
+	printBoard(algoK(Point{X: 3, Y: 2}))
+
+	fmt.Println("rook moves")
+	printBoard(algoR(Point{X: 3, Y: 2}))
+
+	fmt.Println("bishop moves")
+	printBoard(algoB(Point{X: 0, Y: 0}))
+	
+	fmt.Println("queen moves")
+	printBoard(algoQ(Point{X: 3, Y: 1}))
+
+}
+
+// Algorithm to compute knight's possible moves.
+func algoK(start Point) uint64 {
+	var moves []Point = []Point{
+		{-1, 2},
+		{-1, -2},
+		{1, -2},
+		{1, 2},
+		{2, 1},
+		{2, -1},
+		{-2, 1},
+		{-2, -1},
+	}
+	var bitboard uint64
+	for _, move := range moves {
+		bitboard |= 1 << (63 - translateMove(move.X+start.X, move.Y+start.Y))
+	}
+	return bitboard
+}
+
+func algoR(start Point) uint64 {
+	var bitboard uint64
+	for i := -start.X; i < 8-start.X; i++ {
+		if i == 0 {
+			continue
+		}
+		shift := 63 - translateMove(i+start.X, start.Y)
+		bitboard |= 1 << shift
+	}
+
+	for j := -start.Y; j < 8-start.Y; j++ {
+		if j == 0 {
+			continue
+		}
+		shift := 63 - translateMove(start.X, start.Y+j)
+		bitboard |= 1 << shift
+	}
+	return bitboard
+}
+
+func algoB(start Point) uint64 {
+	var bitboard uint64
+	for i := 0; i < 8-start.X; i++ {
+		if i == 0 {
+			continue
+		}
+		shift := 63 - translateMove(i+start.X, start.Y+i)
+		if shift > 0 && shift < 63 {
+			bitboard |= 1 << shift
+		}
+
+		shift = 63 - translateMove(i+start.X, start.Y-i)
+
+		if shift > 0 && shift < 63 {
+			bitboard |= 1 << shift
+		}
+	}
+	for i := start.X; i > 0; i-- {
+		if i == 0 {
+			continue
+		}
+		shift := 63 - translateMove(start.X-i, start.Y+i)
+		if shift > 0 && shift < 63 {
+			bitboard |= 1 << shift
+		}
+
+		shift = 63 - translateMove(start.X-i, start.Y-i)
+		if shift > 0 && shift < 63 {
+			bitboard |= 1 << shift
+		}
+	}
+
+	return bitboard
+}
+
+func algoQ(start Point) uint64 {
+	// Vertical |
+	
+	// Horizontal -
+	
+	// Diagonal \
+	
+	// Diagonal /
+	return algoB(start) | algoR(start)
 }
 
 func printBoard(board uint64) {
