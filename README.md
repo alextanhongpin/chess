@@ -170,7 +170,8 @@ func main() {
 	
 	fmt.Println("queen moves")
 	printBoard(algoQ(Point{X: 3, Y: 1}))
-
+	// Example of queen possible moves on the chess board.
+	printBoard(^blackPieces & (newWhitePieces & algoQ(Point{X: 3, Y: 1}) | algoQ(Point{X: 3, Y: 1})))
 }
 
 // Algorithm to compute knight's possible moves.
